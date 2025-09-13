@@ -79,16 +79,27 @@ function renderDistrictTable(data, parties) {
   for (let key in grouped) {
     const rows = grouped[key].sort((a,b) => a.rank - b.rank).slice(0,3);
     const tr = document.createElement("tr");
+
     tr.innerHTML = `
       <td>${rows[0].province}</td>
       <td>${rows[0].district}</td>
-      <td style="color:${findColor(rows[0].party_id, parties)}">${rows[0].candidate} (${rows[0].party_id})</td>
-      <td style="color:${findColor(rows[1]?.party_id, parties)}">${rows[1]?.candidate || ""} (${rows[1]?.party_id || ""})</td>
-      <td style="color:${findColor(rows[2]?.party_id, parties)}">${rows[2]?.candidate || ""} (${rows[2]?.party_id || ""})</td>
+      <td style="color:${findColor(rows[0].party_id, parties)}">
+        ${rows[0].candidate} (${rows[0].party_id})
+        <span class="votes">${rows[0].votes} คะแนน</span>
+      </td>
+      <td style="color:${findColor(rows[1]?.party_id, parties)}">
+        ${rows[1]?.candidate || ""} (${rows[1]?.party_id || ""})
+        <span class="votes">${rows[1]?.votes || ""} คะแนน</span>
+      </td>
+      <td style="color:${findColor(rows[2]?.party_id, parties)}">
+        ${rows[2]?.candidate || ""} (${rows[2]?.party_id || ""})
+        <span class="votes">${rows[2]?.votes || ""} คะแนน</span>
+      </td>
     `;
     tbody.appendChild(tr);
   }
 }
+
 
 function findColor(partyId, parties) {
   const p = parties.find(x => x.party_id === partyId);
