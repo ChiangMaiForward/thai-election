@@ -16,24 +16,37 @@ async function loadData() {
 function renderSeatMap(parties) {
   const canvas = document.getElementById("seatMap");
   const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   const totalSeats = 500;
-  let seatIndex = 0;
+  const radius = 180; // รัศมีโค้ง
+  const cx = canvas.width / 2;
+  const cy = canvas.height - 20; // วางที่กึ่งล่างของ canvas
+  const anglePerSeat = Math.PI / (totalSeats - 1);
 
+  // เตรียมที่นั่งรวม
+  let seats = [];
   parties.forEach(p => {
     const count = Number(p.seats_district) + Number(p.seats_partylist);
-    const anglePerSeat = Math.PI / totalSeats;
-
-    ctx.fillStyle = p.color;
     for (let i = 0; i < count; i++) {
-      const angle = i * anglePerSeat; // 0–180 องศา
-      const x = canvas.width/2 + Math.cos(angle) * 180;
-      const y = canvas.height - Math.sin(angle) * 180;
-      ctx.beginPath();
-      ctx.arc(x, y, 6, 0, 2*Math.PI);
-      ctx.fill();
-      seatIndex++;
+      seats.push(p.color);
     }
+  });
+  // ถ้าที่นั่งไม่ครบ 500 ให้ใส่สีเทา
+  while (seats.length < totalSeats) {
+    seats.push("#ccc");
+  }
+
+  // วาดโค้ง 0–180 องศา
+  seats.forEach((color, i) => {
+    const angle = Math.PI - i * anglePerSeat; // เริ่มซ้าย → ขวา
+    const x = cx + Math.cos(angle) * radius;
+    const y = cy - Math.sin(angle) * radius;
+
+    ctx.beginPath();
+    ctx.arc(x, y, 6, 0, 2 * Math.PI);
+    ctx.fillStyle = color;
+    ctx.fill();
   });
 }
 
@@ -44,7 +57,7 @@ function renderBars(parties) {
     const seats = Number(p.seats_district) + Number(p.seats_partylist);
     const bar = document.createElement("div");
     bar.className = "bar";
-    bar.style.width = (seats*2) + "px"; // scale
+    bar.style.width = (seats * 2) + "px"; // scale
     bar.style.backgroundColor = p.color;
     bar.innerText = `${p.party_name} ${seats} ที่นั่ง`;
     container.appendChild(bar);
@@ -70,8 +83,8 @@ function renderDistrictTable(data, parties) {
       <td>${rows[0].province}</td>
       <td>${rows[0].district}</td>
       <td style="color:${findColor(rows[0].party_id, parties)}">${rows[0].candidate} (${rows[0].party_id})</td>
-      <td style="color:${findColor(rows[1].party_id, parties)}">${rows[1].candidate} (${rows[1].party_id})</td>
-      <td style="color:${findColor(rows[2].party_id, parties)}">${rows[2].candidate} (${rows[2].party_id})</td>
+      <td style="color:${findColor(rows[1]?.party_id, parties)}">${rows[1]?.candidate || ""} (${rows[1]?.party_id || ""})</td>
+      <td style="color:${findColor(rows[2]?.party_id, parties)}">${rows[2]?.candidate || ""} (${rows[2]?.party_id || ""})</td>
     `;
     tbody.appendChild(tr);
   }
