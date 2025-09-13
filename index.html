@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="th">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ผลการเลือกตั้ง - Seat Map</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <h2>ผลการเลือกตั้ง — Seat Map 500 ที่นั่ง</h2>
+    <div class="controls">
+      <button id="refreshBtn" class="btn">รีเฟรชข้อมูล</button>
+      <button id="viewTotal" class="btn primary">แสดงรวม 500 ที่นั่ง</button>
+      <button id="viewByConstituency" class="btn">แสดงแยกรายเขต</button>
+      <div style="margin-left:auto" id="lastUpdated"></div>
+    </div>
+  
+    <div id="barsContainer"></div>
+    <div id="seatmap"></div>
+    <div class="legend" id="legend"></div>
+    <div class="info" id="info"></div>
+    <div class="tooltip" id="tooltip"></div>
+  
+    <script src="/js/script.js"></script>
+</body>
+</html>
