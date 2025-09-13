@@ -1,5 +1,7 @@
-const PARTY_SHEET_URL = "https://script.google.com/macros/s/AKfycbwiS3Fg9jbFV3QuEV44wRPQGe99aDHfBgfOutLBjlzhJouBtxI_iAyIdL_KmQJUXE1V2Q/exec?sheet=party";
-const CONSTITUENCY_SHEET_URL = "https://script.google.com/macros/s/AKfycbwiS3Fg9jbFV3QuEV44wRPQGe99aDHfBgfOutLBjlzhJouBtxI_iAyIdL_KmQJUXE1V2Q/exec?sheet=constituency";
+const PARTY_SHEET_URL =
+  "https://script.google.com/macros/s/AKfycbwiS3Fg9jbFV3QuEV44wRPQGe99aDHfBgfOutLBjlzhJouBtxI_iAyIdL_KmQJUXE1V2Q/exec?sheet=party";
+const CONSTITUENCY_SHEET_URL =
+  "https://script.google.com/macros/s/AKfycbwiS3Fg9jbFV3QuEV44wRPQGe99aDHfBgfOutLBjlzhJouBtxI_iAyIdL_KmQJUXE1V2Q/exec?sheet=constituency";
 
 async function loadData() {
   const partyRes = await fetch(PARTY_SHEET_URL);
@@ -13,33 +15,30 @@ async function loadData() {
   renderDistrictTable(constituencies, parties);
 }
 
+// ✅ วาดที่นั่ง 500 จุดเป็นครึ่งวงกลม (0–π)
 function renderSeatMap(parties) {
   const canvas = document.getElementById("seatMap");
   const ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   const totalSeats = 500;
-  const radius = 180; // รัศมีโค้ง
+  const radius = 180;
   const cx = canvas.width / 2;
-  const cy = canvas.height - 20; // วางที่กึ่งล่างของ canvas
+  const cy = canvas.height - 20; // ล่างสุด
   const anglePerSeat = Math.PI / (totalSeats - 1);
 
-  // เตรียมที่นั่งรวม
+  // สร้าง array seats = สีพรรคเรียงตามจำนวน
   let seats = [];
-  parties.forEach(p => {
+  parties.forEach((p) => {
     const count = Number(p.seats_district) + Number(p.seats_partylist);
     for (let i = 0; i < count; i++) {
       seats.push(p.color);
     }
   });
-  // ถ้าที่นั่งไม่ครบ 500 ให้ใส่สีเทา
-  while (seats.length < totalSeats) {
-    seats.push("#ccc");
-  }
+  while (seats.length < totalSeats) seats.push("#ccc");
 
-  // วาดโค้ง 0–180 องศา
   seats.forEach((color, i) => {
-    const angle = Math.PI - i * anglePerSeat; // เริ่มซ้าย → ขวา
+    const angle = i * anglePerSeat; // 0 → π
     const x = cx + Math.cos(angle) * radius;
     const y = cy - Math.sin(angle) * radius;
 
@@ -50,59 +49,60 @@ function renderSeatMap(parties) {
   });
 }
 
+// ✅ แถบจำนวน ส.ส. ต่อพรรค
 function renderBars(parties) {
   const container = document.getElementById("bars");
   container.innerHTML = "";
-  parties.forEach(p => {
+  parties.forEach((p) => {
     const seats = Number(p.seats_district) + Number(p.seats_partylist);
     const bar = document.createElement("div");
     bar.className = "bar";
-    bar.style.width = (seats * 2) + "px"; // scale
+    bar.style.width = seats * 2 + "px";
     bar.style.backgroundColor = p.color;
     bar.innerText = `${p.party_name} ${seats} ที่นั่ง`;
     container.appendChild(bar);
   });
 }
 
+// ✅ ตารางเขตเลือกตั้ง (ผู้ชนะ 3 อันดับแรก)
 function renderDistrictTable(data, parties) {
   const tbody = document.querySelector("#districtTable tbody");
   tbody.innerHTML = "";
 
-  // Group by province + district
   const grouped = {};
-  data.forEach(row => {
+  data.forEach((row) => {
     const key = row.province + "-" + row.district;
     if (!grouped[key]) grouped[key] = [];
     grouped[key].push(row);
   });
 
   for (let key in grouped) {
-    const rows = grouped[key].sort((a,b) => a.rank - b.rank).slice(0,3);
+    const rows = grouped[key].sort((a, b) => a.rank - b.rank).slice(0, 3);
     const tr = document.createElement("tr");
 
+    const makeCell = (r) => {
+      if (!r) return `<td></td>`;
+      return `
+        <td style="color:${findColor(r.party_id, parties)}">
+          ${r.candidate} (${r.party_id})
+          <span class="votes">${r.votes} คะแนน</span>
+        </td>
+      `;
+    };
+
     tr.innerHTML = `
-      <td>${rows[0].province}</td>
-      <td>${rows[0].district}</td>
-      <td style="color:${findColor(rows[0].party_id, parties)}">
-        ${rows[0].candidate} (${rows[0].party_id})
-        <span class="votes">${rows[0].votes} คะแนน</span>
-      </td>
-      <td style="color:${findColor(rows[1]?.party_id, parties)}">
-        ${rows[1]?.candidate || ""} (${rows[1]?.party_id || ""})
-        <span class="votes">${rows[1]?.votes || ""} คะแนน</span>
-      </td>
-      <td style="color:${findColor(rows[2]?.party_id, parties)}">
-        ${rows[2]?.candidate || ""} (${rows[2]?.party_id || ""})
-        <span class="votes">${rows[2]?.votes || ""} คะแนน</span>
-      </td>
+      <td>${rows[0]?.province || ""}</td>
+      <td>${rows[0]?.district || ""}</td>
+      ${makeCell(rows[0])}
+      ${makeCell(rows[1])}
+      ${makeCell(rows[2])}
     `;
     tbody.appendChild(tr);
   }
 }
 
-
 function findColor(partyId, parties) {
-  const p = parties.find(x => x.party_id === partyId);
+  const p = parties.find((x) => x.party_id === partyId);
   return p ? p.color : "#555";
 }
 
