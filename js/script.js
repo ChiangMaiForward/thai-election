@@ -1,5 +1,5 @@
-const PARTY_SHEET_URL = "YOUR_PARTY_SHEET_JSON_URL";
-const CONSTITUENCY_SHEET_URL = "YOUR_CONSTITUENCY_SHEET_JSON_URL";
+const PARTY_SHEET_URL = "https://script.google.com/macros/s/AKfycbwiS3Fg9jbFV3QuEV44wRPQGe99aDHfBgfOutLBjlzhJouBtxI_iAyIdL_KmQJUXE1V2Q/exec?sheet=party";
+const CONSTITUENCY_SHEET_URL = "https://script.google.com/macros/s/AKfycbwiS3Fg9jbFV3QuEV44wRPQGe99aDHfBgfOutLBjlzhJouBtxI_iAyIdL_KmQJUXE1V2Q/exec?sheet=constituency";
 
 async function loadData() {
   const partyRes = await fetch(PARTY_SHEET_URL);
