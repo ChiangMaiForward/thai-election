@@ -8,14 +8,23 @@
 <body>
   <h1>ผลการเลือกตั้ง ส.ส. 500 ที่นั่ง</h1>
   
-  <!-- แถบจำนวน ส.ส. ต่อพรรค -->
-  <div id="party-bars"></div>
 
-  <!-- Seat Map -->
-  <div id="seat-map"></div>
+  <div id="bars"></div>
 
-  <!-- รายละเอียดเขต -->
-  <div id="district-info"></div>
+  <canvas id="seatMap" width="800" height="400"></canvas>
+
+  <table id="districtTable" border="1" cellspacing="0" cellpadding="5">
+    <thead>
+      <tr>
+        <th>จังหวัด</th>
+        <th>เขต</th>
+        <th>อันดับ 1</th>
+        <th>อันดับ 2</th>
+        <th>อันดับ 3</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
   <script src="/js/script.js"></script>
 </body>
